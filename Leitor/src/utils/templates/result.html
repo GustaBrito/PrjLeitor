@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultado - {{ prompt_option|replace('_', ' ')|title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="{{ url_for('static', filename='js/export.js') }}"></script>
+  <link rel="icon" href="{{ url_for('static', filename='Leitor.ico') }}" type="image/x-icon"/>
+</head>
+<body class="body_result">
+  <div class="container">
+    <h1 class="result-title">
+      Resultado - 
+      {% if prompt_option == 'text_analysis' %}
+        Análise de Texto ({{ sub_prompt_option|replace('_', ' ')|title }})
+      {% elif prompt_option == 'translate' %}
+        Tradução para {{ results.target_language|default('idioma desconhecido') }}
+      {% elif prompt_option == 'ai_check' %}
+        Checagem de IA
+      {% elif prompt_option == 'math_operation' %}
+        Operação Matemática
+      {% else %}
+        {{ prompt_option|replace('_', ' ')|title }}
+      {% endif %}
+    </h1>
+
+    {# → Análise de Texto #}
+    {% if prompt_option == 'text_analysis' %}
+      <section class="text-analysis-content">
+        {% if sub_prompt_option == 'resumo' %}
+          <h2 class="section-header">Resumo do Documento</h2>
+          <div class="result-text">{{ results.summary_text|safe }}</div>
+        
+        {% elif sub_prompt_option == 'extracao_completa' %}
+          <h2 class="section-header">Dados Extraídos</h2>
+          {% if results.extracted_text %}
+            <div class="raw-results">
+              <pre>{{ results.extracted_text }}</pre>
+            </div>
+          {% else %}
+            <div class="alert alert-danger">
+              <p>Nenhum dado foi extraído. Possíveis causas:</p>
+              <ul>
+                <li>O arquivo não continha texto legível</li>
+                <li>O Gemini não retornou dados válidos</li>
+                <li>Erro no processamento interno</li>
+              </ul>
+            </div>
+          {% endif %}
+        
+        {% elif sub_prompt_option == 'higienizar' %}
+          <h2 class="section-header">Documento Higienizado</h2>
+          <div class="result-text">{{ results.sanitized_text|safe }}</div>
+          <div class="sanitize-info">
+            <p>Informações pessoais foram removidas ou anonimizadas.</p>
+          </div>
+        {% endif %}
+      </section>
+
+    {# → Resumo #}
+    {% elif prompt_option == 'summarize' %}
+      <section class="summary-content">
+        <h2 class="section-header">Resumo do Documento</h2>
+        <div class="result-text">{{ results.summary_text|safe }}</div>
+      </section>
+
+    {# → Tradução #}
+    {% elif prompt_option == 'translate' %}
+      <section class="translation-content">
+        <h2 class="section-header">Texto Traduzido</h2>
+        <div class="result-text">{{ results.summary_text|safe }}</div>
+      </section>
+
+    {# → Validação #}
+    {% elif prompt_option == 'validate' %}
+      <section class="validation-content">
+        <h2 class="section-header">Resultados da Validação</h2>
+        <p class="error-count">Total de erros encontrados: {{ results.total_errors }}</p>
+        
+        {% if results.errors %}
+          <table class="error-table">
+            <thead>
+              <tr>
+                <th>Campo</th>
+                <th>Valor</th>
+                <th>Mensagem de Erro</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for error in results.errors %}
+              <tr>
+                <td>{{ error.field }}</td>
+                <td>{{ error.value }}</td>
+                <td>{{ error.message }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="success-message">Nenhum erro encontrado no documento!</p>
+        {% endif %}
+      </section>
+
+    {# → Extração #}
+    {% elif prompt_option == 'extract' %}
+      <section class="extraction-content">
+        <h2 class="section-header">Dados Extraídos</h2>
+        
+        {% if results.columns and results.rows %}
+          <table class="data-table">
+            <thead>
+              <tr>
+                {% for col in results.columns %}
+                <th>{{ col }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in results.rows %}
+              <tr>
+                {% for cell in row %}
+                <td>{{ cell }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>Nenhuma tabela foi encontrada no documento.</p>
+        {% endif %}
+        
+        {% if results.charts %}
+          <h3 class="charts-header">Gráficos Identificados</h3>
+          <div class="charts-container">
+            {% for chart in results.charts %}
+            <div class="chart-item">
+              <img src="{{ chart }}" alt="Gráfico extraído">
+            </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </section>
+
+    {# → Checagem de IA #}
+    {% elif prompt_option == 'ai_check' %}
+      <section class="ai-check-content">
+        <div class="ai-probability">
+          <h2>Análise de Conteúdo Gerado por IA</h2>
+          <div class="ai-results">
+            {% for result in results.ai_results %}
+              <div class="ai-result-item">
+                <h3>Análise {{ loop.index }}</h3>
+                <pre>{{ result|tojson(indent=2) }}</pre>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+    {# → Operação Matemática #}
+    {% elif prompt_option == 'math_operation' %}
+      <section class="math-content">
+        <div class="result-text">{{ results.math_solutions|safe }}</div>
+      </section>
+    {% endif %}
+
+    {# → Opções de Exportação #}
+    <div class="button-container">
+      <button id="export-pdf" class="btn">📄 Exportar para PDF</button>
+      {% if prompt_option not in ['ai_check', 'math_operation'] %}
+        <button id="export-docx" class="btn">📝 Exportar para Word</button>
+      {% endif %}
+      <button id="copy-text" class="btn">📋 Copiar Texto</button>
+    </div>
+
+    <a href="/" class="back-link">← Voltar</a>
+  </div>
+
+  <script>
+    // Função para copiar texto
+    document.getElementById('copy-text').addEventListener('click', function() {
+      let textToCopy = '';
+      
+      // Verifica qual conteúdo está visível para copiar
+      if (document.querySelector('.raw-results pre')) {
+        textToCopy = document.querySelector('.raw-results pre').innerText;
+      } else if (document.querySelector('.result-text')) {
+        textToCopy = document.querySelector('.result-text').innerText;
+      }
+      
+      if (textToCopy) {
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => alert('Texto copiado com sucesso!'))
+          .catch(err => console.error('Erro ao copiar:', err));
+      } else {
+        alert('Nenhum texto disponível para copiar');
+      }
+    });
+  </script>
+</body>
+</html>

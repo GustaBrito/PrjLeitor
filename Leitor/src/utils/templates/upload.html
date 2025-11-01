@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leitor Inteligente de Arquivos</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <script defer src="{{ url_for('static', filename='js/upload.js') }}"></script>
+  <link rel="icon" href="{{ url_for('static', filename='Leitor.ico') }}" type="image/x-icon">
+</head>
+
+<body class="body_upload">
+  <div class="quadro_upload">
+    <section class="arquivo-painel_upload">
+      <h1 class="h1_upload">Leitor Inteligente de Arquivos</h1>
+      <p class="p_upload">Selecione a função desejada e envie seu arquivo:</p>
+
+      <!-- Formulário de upload -->
+      <form action="/upload" method="post" enctype="multipart/form-data">
+
+        <!-- Grupo de opções de procedimento -->
+        <fieldset class="option-group">
+          <legend class="label_upload">🔧 Selecione a função desejada:</legend>
+
+          <!-- Análise de Texto -->
+          <label class="option-item">
+            <input type="radio" name="function_option" value="text_analysis" checked>
+            Análise de Texto
+          </label>
+
+          <!-- Tradução -->
+          <label class="option-item">
+            <input type="radio" name="function_option" value="translation">
+            Tradução
+          </label>
+
+          <!-- Checagem de IA -->
+          <label class="option-item">
+            <input type="radio" name="function_option" value="ai_check">
+            Checagem de IA
+          </label>
+
+          <!-- Operação Matemática -->
+          <label class="option-item">
+            <input type="radio" name="function_option" value="math_operation">
+            Operação Matemática
+          </label>
+        </fieldset>
+
+        <!-- Opções específicas para Análise de Texto -->
+        <div id="text-analysis-options" class="sub-options">
+          <fieldset class="option-subgroup">
+            <legend class="label_upload">📝 Tipo de análise:</legend>
+            <label class="option-item">
+              <input type="radio" name="analysis_type" value="summary" checked>
+              Resumo
+            </label>
+            <label class="option-item">
+              <input type="radio" name="analysis_type" value="full_extraction">
+              Extração Completa
+            </label>
+            <label class="option-item">
+              <input type="radio" name="analysis_type" value="sanitize">
+              Higienizar
+            </label>
+          </fieldset>
+        </div>
+
+        <!-- Opções específicas para Tradução -->
+        <div id="translation-options" class="sub-options" style="display: none;">
+          <label for="target_lang" class="label_upload">🌐 Idioma de destino:</label>
+          <select name="target_lang" id="target_lang" class="language-select">
+            <option value="en">Inglês</option>
+            <option value="es">Espanhol</option>
+            <option value="fr">Francês</option>
+            <option value="de">Alemão</option>
+            <option value="it">Italiano</option>
+            <option value="ja">Japonês</option>
+            <option value="zh">Chinês</option>
+            <option value="ru">Russo</option>
+          </select>
+        </div>
+
+        <!-- Área de upload (comum a todas as funções) -->
+        <div class="file-upload">
+          <label for="file" class="custom-file-upload">
+            📄 Escolher Arquivo (PDF/Imagem)
+            <input type="file" id="file" name="file" accept="application/pdf, image/jpeg, image/png, image/webp" multiple required>
+          </label>
+          <span id="file-name">Nenhum arquivo escolhido</span>
+        </div>
+
+        <!-- Botão de envio -->
+        <button type="submit" id="submit" class="btn-enviar_upload">✔ Processar Arquivo</button><br>
+        <span id="txt_aguarde" class="txt_aguarde"></span>
+      </form>
+    </section>
+  </div>
+
+  <!-- Pop-up de notificação -->
+  <div id="customOverlay" class="custom-overlay">
+    <div class="custom-modal">
+      <span class="close-modal">&times;</span>
+      <p id="customModalText"></p>
+    </div>
+  </div>
+
+  <!-- Overlay de carregamento -->
+  <div id="overlay" class="overlay">
+    <div class="body_loadAnimacao">
+      <svg class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+        <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

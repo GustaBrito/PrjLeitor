@@ -1,0 +1,12 @@
+Flask==2.3.3                # Framework web (FLASK)
+google-generativeai==0.8.4  # Biblioteca para interação com Gemini
+PyMuPDF==1.25.3             # Para manipular PDFs (import fitz)
+python-dotenv==1.0.0        # Caso deseje carregar variáveis do .env
+requests==2.31.0            # Geralmente usado como dependência de muitas libs
+fastapi                     # Framework Web (FASTAPI)
+python-multipart            # Framework Web (FASTAPI)
+uvicorn                     # Framework Web (FASTAPI)
+Pillow
+PyQt6
+PyQt6-WebEngine
+markdown
