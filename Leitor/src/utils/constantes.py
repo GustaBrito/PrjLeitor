@@ -8,8 +8,8 @@ class Constantes:
     DIR_RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
  
     # Configuração da chave de API do Gemini
-    GEMINI_API_KEY="AIzaSyC-XEKxjIdelecx99Uw3Z6lRDJ1pjxhQIA" #os.environ.get("GEMINI_API_KEY", "sua_api_key_aqui")
-    CHAVE_API_GEMINI="AIzaSyC-XEKxjIdelecx99Uw3Z6lRDJ1pjxhQIA"
+    GEMINI_API_KEY="" #os.environ.get("GEMINI_API_KEY", "sua_api_key_aqui")
+    CHAVE_API_GEMINI=""#os.environ.get("GEMINI_API_KEY", "sua_api_key_aqui")
     MODELO_GEMINI = 'gemini-2.0-flash'
  
     # Configuração do Flask
@@ -59,4 +59,5 @@ class Caminhos:
 
     # 7) pasta de assets web
     STATIC_DIR    = UTILS_DIR / 'static'
+
     TEMPLATES_DIR = UTILS_DIR / 'templates'
